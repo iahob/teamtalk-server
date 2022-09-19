@@ -1,8 +1,7 @@
-pub 是代码发布地方
-module 依赖库
-src 源码
-编译方式
-mkdir build 
-cd build
-cmake ..
-make && make install
+
+### 编译方式
+```bash
+mkdir build
+cd build && cmake ..
+make && make install 
+```
