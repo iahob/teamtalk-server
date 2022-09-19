@@ -1,0 +1,21 @@
+//时间: 2019-01-23
+//作者: China Captain
+//功能: 基础消息定义
+//修改: proto2  升级到 proto3.6
+
+syntax="proto3";
+package IM.SwitchService;
+option java_package = "com.mogujie.tt.protobuf";
+//由于生成java代码时不在支持 optimize_for = LITE_RUNTIME；采用默认的SPEED
+//option optimize_for = LITE_RUNTIME;
+
+//service id: 0x0006
+
+message IMP2PCmdMsg{
+	//cmd id:		0x0601
+	uint32 from_user_id = 1;
+	uint32 to_user_id = 2;
+	string cmd_msg_data = 3;
+}
+
+

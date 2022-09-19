@@ -1,0 +1,33 @@
+﻿{
+  "configurations": [
+	{
+		"name": "base",
+		"generator": "Unix Makefiles",
+		"remoteMachineName": "${defaultRemoteMachineName}",
+		"configurationType": "Debug",
+		"remoteCMakeListsRoot": "/home/svn/TeamTalk/server/src/base", // 指定将项目源复制到远程系统上的何处
+		"cmakeExecutable": "/usr/local/bin/cmake",
+		"buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+		"installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+		"remoteBuildRoot": "/home/svn/TeamTalk/server/src/lib/${name}", // 是远程系统上生成“生成输出”的位置
+		"remoteInstallRoot": "/home/svn/TeamTalk/server/${name}",
+		"remoteCopySources": true,
+		"remoteCopySourcesOutputVerbosity": "Normal",
+		"remoteCopySourcesConcurrentCopies": "10",
+		"remoteCopySourcesMethod": "rsync",
+		"remotePostbuildCommand": "mv libbase.a ../", // 把生成的静态库放在server/lib下
+		"remoteCopySourcesExclusionList": [
+			".vs",
+			".git"
+		],
+		"rsyncCommandArgs": "-t --delete --delete-excluded",
+		"remoteCopyBuildOutput": false,
+		"cmakeCommandArgs": "",
+		"buildCommandArgs": "",
+		"ctestCommandArgs": "",
+		"inheritEnvironments": [
+			"linux_x64"
+		]
+	}
+  ]
+}

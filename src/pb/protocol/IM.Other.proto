@@ -1,0 +1,17 @@
+//时间: 2019-01-23
+//作者: China Captain
+//功能: 基础消息定义
+//修改: proto2  升级到 proto3.6
+
+syntax="proto3";
+package IM.Other;
+option java_package = "com.mogujie.tt.protobuf";
+//由于生成java代码时不在支持 optimize_for = LITE_RUNTIME；采用默认的SPEED
+//option optimize_for = LITE_RUNTIME;
+
+//service id: 0x0007
+
+message IMHeartBeat{
+	//cmd id:  		0x0701
+}
+
