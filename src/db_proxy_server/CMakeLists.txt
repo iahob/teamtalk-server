@@ -29,7 +29,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 ADD_EXECUTABLE(db_proxy_server ${SRC_LIST})
 
-TARGET_LINK_LIBRARIES(db_proxy_server pthread base protobuf mysqlclient hiredis curl ssl crypto jsoncpp spdlog)
+TARGET_LINK_LIBRARIES(db_proxy_server pthread base protobuf mysqlclient hiredis curl ssl crypto jsoncpp spdlog yaml-cpp)
  
 TARGET_INCLUDE_DIRECTORIES(db_proxy_server PRIVATE
         ./
@@ -38,7 +38,7 @@ TARGET_INCLUDE_DIRECTORIES(db_proxy_server PRIVATE
          ../pb/protocol
          /usr/local/include/
          ${MYSQL_INCLUDE_DIR}
-
+        ${YAML_CPP_INCLUDE_DIR}
 
 )
 
@@ -47,4 +47,5 @@ TARGET_LINK_DIRECTORIES( db_proxy_server PRIVATE
         /usr/local/lib
         ../pkg/lib
         ${MYSQL_LIB}
+        ${YAML_CPP_LIB_DIR}
 )

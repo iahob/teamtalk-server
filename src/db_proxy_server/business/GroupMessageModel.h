@@ -26,26 +26,27 @@ using namespace std;
 
 class CGroupMessageModel {
 public:
-	virtual ~CGroupMessageModel();
-	static CGroupMessageModel* getInstance();
-    
+ 	static CGroupMessageModel* getInstance(){
+        static CGroupMessageModel m_pInstance;
+        return &m_pInstance;
+    };
+   virtual ~CGroupMessageModel ()= default;
     bool sendMessage(uint32_t nFromId, uint32_t nGroupId, IM::BaseDefine::MsgType nMsgType, uint32_t nCreateTime, uint32_t nMsgId, const string& strMsgContent);
     bool sendAudioMessage(uint32_t nFromId, uint32_t nGroupId, IM::BaseDefine::MsgType nMsgType, uint32_t nCreateTime, uint32_t nMsgId,const char* pMsgContent, uint32_t nMsgLen);
-    void getMessage(uint32_t nUserId, uint32_t nGroupId, uint32_t nMsgId, uint32_t nMsgCnt,
-                    list<IM::BaseDefine::MsgInfo>& lsMsg);
-    bool clearMessageCount(uint32_t nUserId, uint32_t nGroupId);
-    uint32_t getMsgId(uint32_t nGroupId);
+    void getMessage(uint32_t nUserId, uint32_t nGroupId, uint32_t nMsgId, uint32_t nMsgCnt,list<IM::BaseDefine::MsgInfo>& lsMsg);
+    bool clearMessageCount(uint32_t nUserId, uint32_t nGroupId);  
     void getUnreadMsgCount(uint32_t nUserId, uint32_t &nTotalCnt, list<IM::BaseDefine::UnreadInfo>& lsUnreadCount);
     void getLastMsg(uint32_t nGroupId, uint32_t& nMsgId, string& strMsgData, IM::BaseDefine::MsgType & nMsgType, uint32_t& nFromId);
     void getUnReadCntAll(uint32_t nUserId, uint32_t &nTotalCnt);
     void getMsgByMsgId(uint32_t nUserId, uint32_t nGroupId, const list<uint32_t>& lsMsgId, list<IM::BaseDefine::MsgInfo>& lsMsg);
     bool resetMsgId(uint32_t nGroupId);
+    uint32_t getMsgId(uint32_t nGroupId);
 private:
-    CGroupMessageModel();
     bool incMessageCount(uint32_t nUserId, uint32_t nGroupId);
-
 private:
-	static CGroupMessageModel*	m_pInstance;
+    CGroupMessageModel ()= default;
+    CGroupMessageModel (const CGroupMessageModel &)= delete;
+    CGroupMessageModel & operator=(const CGroupMessageModel &)= delete;
 };
 
 

@@ -15,17 +15,7 @@
 #include "base/slog.h"
 
 
-
-CSessionModel* CSessionModel::m_pInstance = NULL;
-
-CSessionModel* CSessionModel::getInstance()
-{
-    if (!m_pInstance) {
-        m_pInstance = new CSessionModel();
-    }
-    
-    return m_pInstance;
-}
+ 
 
 void CSessionModel::getRecentSession(uint32_t nUserId, uint32_t lastTime, list<IM::BaseDefine::ContactSessionInfo>& lsContact)
 {

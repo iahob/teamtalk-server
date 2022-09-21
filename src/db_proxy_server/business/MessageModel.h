@@ -23,8 +23,11 @@ using namespace std;
 
 class CMessageModel {
 public:
-	virtual ~CMessageModel();
-	static CMessageModel* getInstance();
+	virtual ~CMessageModel()=default;
+	static CMessageModel* getInstance(){
+        static CMessageModel m_pInstance;
+        return &m_pInstance;
+    };
 
     bool sendMessage(uint32_t nRelateId, uint32_t nFromId, uint32_t nToId, IM::BaseDefine::MsgType nMsgType, uint32_t nCreateTime,
                      uint32_t nMsgId, string& strMsgContent);
@@ -40,10 +43,12 @@ public:
     void getMsgByMsgId(uint32_t nUserId, uint32_t nPeerId, const list<uint32_t>& lsMsgId, list<IM::BaseDefine::MsgInfo>& lsMsg);
     bool resetMsgId(uint32_t nRelateId);
 private:
-	CMessageModel();
+    CMessageModel ()= default;
+    CMessageModel (const CMessageModel &)= delete;
+    CMessageModel & operator=(const CMessageModel &)= delete;
     void incMsgCount(uint32_t nFromId, uint32_t nToId);
-private:
-	static CMessageModel*	m_pInstance;
+ 
+	
 };
 
 

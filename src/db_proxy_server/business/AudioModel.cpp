@@ -17,38 +17,8 @@
 
 using namespace std;
 
-//AudioModel
-CAudioModel* CAudioModel::m_pInstance = NULL;
+  
 
-/**
- *  构造函数
- */
-CAudioModel::CAudioModel()
-{
-
-}
-
-/**
- *  析构函数
- */
-CAudioModel::~CAudioModel()
-{
-
-}
-
-/**
- *  单例
- *
- *  @return 单例的指针
- */
-CAudioModel* CAudioModel::getInstance()
-{
-	if (!m_pInstance) {
-		m_pInstance = new CAudioModel();
-	}
-
-	return m_pInstance;
-}
 
 /**
  *  这只语音存储的url地址

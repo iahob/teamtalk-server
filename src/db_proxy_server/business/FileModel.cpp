@@ -12,26 +12,7 @@
 #include "DBPool.h"
 #include "base/slog.h"
 
-
-CFileModel* CFileModel::m_pInstance = NULL;
-
-CFileModel::CFileModel()
-{
-    
-}
-
-CFileModel::~CFileModel()
-{
-    
-}
-
-CFileModel* CFileModel::getInstance()
-{
-    if (m_pInstance == NULL) {
-        m_pInstance = new CFileModel();
-    }
-    return m_pInstance;
-}
+ 
 
 void CFileModel::getOfflineFile(uint32_t userId, list<IM::BaseDefine::OfflineFileInfo>& lsOffline)
 {

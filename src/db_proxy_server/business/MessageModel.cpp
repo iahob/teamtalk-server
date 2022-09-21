@@ -23,27 +23,9 @@
 
 using namespace std;
 
-CMessageModel* CMessageModel::m_pInstance = NULL;
-extern string strAudioEnc;
+ extern string strAudioEnc;
 
-CMessageModel::CMessageModel()
-{
-
-}
-
-CMessageModel::~CMessageModel()
-{
-
-}
-
-CMessageModel* CMessageModel::getInstance()
-{
-	if (!m_pInstance) {
-		m_pInstance = new CMessageModel();
-	}
-
-	return m_pInstance;
-}
+ 
 
 void CMessageModel::getMessage(uint32_t nUserId, uint32_t nPeerId, uint32_t nMsgId,
                                uint32_t nMsgCnt, list<IM::BaseDefine::MsgInfo>& lsMsg)

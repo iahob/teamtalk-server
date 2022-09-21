@@ -12,14 +12,14 @@
 
 
 #include "DBPool.h"
-#include "base/ConfigFileReader.h"
+#include "yaml-cpp/yaml.h"
 #include "base/slog.h"
+#include "algorithm"
 
 
 #define MIN_DB_CONN_CNT		2
 
-CDBManager* CDBManager::s_db_manager = NULL;
-
+ 
 CResultSet::CResultSet(MYSQL_RES* res)
 {
 	m_res = res;
@@ -420,29 +420,7 @@ void CDBPool::RelDBConn(CDBConn* pConn)
 	m_free_notify.Unlock();
 }
 
-/////////////////
-CDBManager::CDBManager()
-{
-
-}
-
-CDBManager::~CDBManager()
-{
-
-}
-
-CDBManager* CDBManager::getInstance()
-{
-	if (!s_db_manager) {
-		s_db_manager = new CDBManager();
-		if (s_db_manager->Init()) {
-			delete s_db_manager;
-			s_db_manager = NULL;
-		}
-	}
-
-	return s_db_manager;
-}
+ 
 /*
  * 2015-01-12
  * modify by ZhangYuanhao :enable config the max connection of every instance
@@ -450,54 +428,38 @@ CDBManager* CDBManager::getInstance()
  */
 int CDBManager::Init()
 {
-	CConfigFileReader config_file("dbproxyserver.conf");
-
-	char* db_instances = config_file.GetConfigName("DBInstances");
-
-	if (!db_instances) {
-		SPDLOG_ERROR("not configure DBInstances");
-		return 1;
-	}
-
-	char host[64];
-	char port[64];
-	char dbname[64];
-	char username[64];
-	char password[64];
-    char maxconncnt[64];
-	CStrExplode instances_name(db_instances, ',');
-
-	for (uint32_t i = 0; i < instances_name.GetItemCnt(); i++) {
-		char* pool_name = instances_name.GetItem(i);
-		snprintf(host, 64, "%s_host", pool_name);
-		snprintf(port, 64, "%s_port", pool_name);
-		snprintf(dbname, 64, "%s_dbname", pool_name);
-		snprintf(username, 64, "%s_username", pool_name);
-		snprintf(password, 64, "%s_password", pool_name);
-        snprintf(maxconncnt, 64, "%s_maxconncnt", pool_name);
-
-		char* db_host = config_file.GetConfigName(host);
-		char* str_db_port = config_file.GetConfigName(port);
-		char* db_dbname = config_file.GetConfigName(dbname);
-		char* db_username = config_file.GetConfigName(username);
-		char* db_password = config_file.GetConfigName(password);
-        char* str_maxconncnt = config_file.GetConfigName(maxconncnt);
-
-		if (!db_host || !str_db_port || !db_dbname || !db_username || !db_password || !str_maxconncnt) {
-			SPDLOG_ERROR("not configure db instance: {}", pool_name);
-			return 2;
+	YAML::Node root = YAML::LoadFile("dbproxyserver.yaml");
+	struct NodePoint {
+		std::string name;
+    	std::string host;
+		int port;
+		std::string username;
+		std::string password;
+		int maxConn;
+	};
+	if(!root["DBInstances"].IsDefined() || !root["DBInstances"].IsSequence()) { //IsDefined() 判断节点是否存在
+        return 1;
+    }
+	for(size_t i = 0; i < root["DBInstances"].size(); ++i) {
+		YAML::Node node = root["DBInstances"][i];
+ 		if(!node.IsMap()) { //判断是否是map结构， IsMap
+            continue;
+        }
+		NodePoint p ;
+		p.name = node["name"].as<std::string>();
+		p.host = node["host"].as<std::string>();
+		p.username = node["username"].as<std::string>();
+		p.password = node["password"].as<std::string>();
+		p.port = node["port"].as<int>();
+		p.maxConn = node["maxConn"].as<int>();
+		
+		CDBPool* dbPool = new CDBPool(p.name.c_str(), p.host.c_str(), p.port,p.username.c_str(),p.password.c_str(), p.name.c_str(),p.maxConn);
+		if (dbPool->Init()) {
+			SPDLOG_ERROR("Init cache pool failed");
+			return 1;
 		}
-
-		int db_port = atoi(str_db_port);
-        int db_maxconncnt = atoi(str_maxconncnt);
-		CDBPool* pDBPool = new CDBPool(pool_name, db_host, db_port, db_username, db_password, db_dbname, db_maxconncnt);
-		if (pDBPool->Init()) {
-			SPDLOG_ERROR("init db instance failed: {}", pool_name);
-			return 3;
-		}
-		m_dbpool_map.insert(make_pair(pool_name, pDBPool));
+		m_dbpool_map.insert(make_pair(p.name, dbPool));
 	}
-
 	return 0;
 }
 

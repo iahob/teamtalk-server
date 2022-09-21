@@ -1,0 +1,59 @@
+#基础信息
+ListenIP: 0.0.0.0
+ListenPort: 10600
+ThreadNum: 48		# double the number of CPU core
+MsfsSite: 127.0.0.1
+#AES 密钥
+aesKey: 12345678901234567890123456789012
+
+#configure for mysql
+DBInstances: 
+  - name: teamtalk_master
+    #master
+    host: 127.0.0.1
+    port: 3306
+    username: root
+    password: 12345
+    maxConn: 16
+  - name: teamtalk_slave
+    host: 127.0.0.1
+    port: 3306 
+    username: root
+    password: 12345
+    maxConn: 16
+
+#configure for CacheInstances
+CacheInstances: 
+  - name: unread
+  #未读消息计数器的redis
+    host: 127.0.0.1
+    port: 6379
+    db: 1
+    maxConn: 16  
+  - name: groupSet
+    #群组设置redis
+    host: 127.0.0.1
+    port: 6379
+    db: 1
+    maxConn: 16
+  
+  - name: token
+    #deviceToken redis
+    host: 127.0.0.1
+    port: 6379
+    db: 1
+    maxConn: 16
+  - name: sync
+    #同步控制
+    host: 127.0.0.1
+    port: 6379
+    db: 2
+    maxConn: 1
+  - name: groupMember
+    #GroupMember
+    host: 127.0.0.1
+    port: 6379
+    db: 1
+    maxConn: 48  
+
+

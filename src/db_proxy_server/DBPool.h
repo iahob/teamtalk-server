@@ -115,19 +115,21 @@ private:
 // manage db pool (master for write and slave for read)
 class CDBManager {
 public:
-	virtual ~CDBManager();
-
-	static CDBManager* getInstance();
+	virtual ~CDBManager()=default;
+	static CDBManager* getInstance(){
+		static CDBManager s_db_manager;
+		return &s_db_manager;
+	};
 
 	int Init();
 
 	CDBConn* GetDBConn(const char* dbpool_name);
 	void RelDBConn(CDBConn* pConn);
 private:
-	CDBManager();
-
+	CDBManager ()= default;
+    CDBManager (const CDBManager &)= delete;
+    CDBManager & operator=(const CDBManager &)= delete;
 private:
-	static CDBManager*		s_db_manager;
 	map<string, CDBPool*>	m_dbpool_map;
 };
 

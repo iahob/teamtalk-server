@@ -19,8 +19,11 @@
 class CUserModel
 {
 public:
-    static CUserModel* getInstance();
-    ~CUserModel();
+    static CUserModel* getInstance(){
+        static CUserModel m_pInstance;
+        return &m_pInstance;
+    };
+    ~CUserModel()=default;
     void getChangedId(uint32_t& nLastTime, list<uint32_t>& lsIds);
     void getUsers(list<uint32_t> lsIds, list<IM::BaseDefine::UserInfo>& lsUsers);
     bool getUser(uint32_t nUserId, DBUserInfo_t& cUser);
@@ -37,9 +40,9 @@ public:
     bool getPushShield(uint32_t user_id, uint32_t* shield_status);
 
 private:
-    CUserModel();
-private:
-    static CUserModel* m_pInstance;
-};
+    CUserModel ()= default;
+    CUserModel (const CUserModel &)= delete;
+    CUserModel & operator=(const CUserModel &)= delete;
+ };
 
 #endif /*defined(__USERMODEL_H__) */

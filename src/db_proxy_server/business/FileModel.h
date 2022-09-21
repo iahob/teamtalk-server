@@ -17,18 +17,20 @@
 class CFileModel
 {
 public:
-    virtual ~CFileModel();
-    static CFileModel* getInstance();
+    virtual ~CFileModel()= default;
+    static CFileModel* getInstance(){
+        static CFileModel m_pInstance;
+        return &m_pInstance;
+    };
     
     void getOfflineFile(uint32_t userId, list<IM::BaseDefine::OfflineFileInfo>& lsOffline);
     void addOfflineFile(uint32_t fromId, uint32_t toId, string& taskId, string& fileName, uint32_t fileSize);
     void delOfflineFile(uint32_t fromId, uint32_t toId, string& taskId);
     
 private:
-    CFileModel();
-    
-private:
-    static CFileModel* m_pInstance;
+    CFileModel ()= default;
+    CFileModel (const CFileModel &)= delete;
+    CFileModel & operator=(const CFileModel &)= delete;
 };
 
 #endif /*defined(__FILEMODEL_H__) */

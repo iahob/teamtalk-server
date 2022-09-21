@@ -16,28 +16,7 @@
 #include "base/slog.h"
 
 
-
-CUserModel* CUserModel::m_pInstance = NULL;
-
-CUserModel::CUserModel()
-{
-
-}
-
-CUserModel::~CUserModel()
-{
-    
-}
-
-CUserModel* CUserModel::getInstance()
-{
-    if(m_pInstance == NULL)
-    {
-        m_pInstance = new CUserModel();
-    }
-    return m_pInstance;
-}
-
+ 
 void CUserModel::getChangedId(uint32_t& nLastTime, list<uint32_t> &lsIds)
 {
     CDBManager* pDBManager = CDBManager::getInstance();

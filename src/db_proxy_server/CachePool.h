@@ -90,18 +90,21 @@ private:
 
 class CacheManager {
 public:
-	virtual ~CacheManager();
+	virtual ~CacheManager()=default;
 
-	static CacheManager* getInstance();
+	static CacheManager* getInstance(){
+		static CacheManager cache_manager;
+		return &cache_manager;
+	};
 
 	int Init();
 	CacheConn* GetCacheConn(const char* pool_name);
 	void RelCacheConn(CacheConn* pCacheConn);
 private:
-	CacheManager();
-
+  	CacheManager ()= default;
+    CacheManager (const CacheManager &)= delete;
+    CacheManager & operator=(const CacheManager &)= delete;
 private:
-	static CacheManager* 	s_cache_manager;
 	map<string, CachePool*>	m_cache_pool_map;
 };
 

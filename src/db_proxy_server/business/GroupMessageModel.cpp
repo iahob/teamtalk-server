@@ -27,37 +27,7 @@ using namespace std;
 
 extern string strAudioEnc;
 
-CGroupMessageModel* CGroupMessageModel::m_pInstance = NULL;
 
-/**
- *  构造函数
- */
-CGroupMessageModel::CGroupMessageModel()
-{
-
-}
-
-/**
- *  析构函数
- */
-CGroupMessageModel::~CGroupMessageModel()
-{
-
-}
-
-/**
- *  单例
- *
- *  @return 返回单例指针
- */
-CGroupMessageModel* CGroupMessageModel::getInstance()
-{
-	if (!m_pInstance) {
-		m_pInstance = new CGroupMessageModel();
-	}
-
-	return m_pInstance;
-}
 
 /**
  *  发送群消息接口

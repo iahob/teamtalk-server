@@ -18,7 +18,10 @@
 class CSessionModel
 {
 public:
-    static CSessionModel* getInstance();
+    static CSessionModel* getInstance(){
+        static CSessionModel m_pInstance;
+        return &m_pInstance;
+    };
     ~CSessionModel() {}
 
     void getRecentSession(uint32_t userId, uint32_t lastTime, list<IM::BaseDefine::ContactSessionInfo>& lsContact);
@@ -28,10 +31,10 @@ public:
     uint32_t addSession(uint32_t nUserId, uint32_t nPeerId, uint32_t nType);
     
 private:
-    CSessionModel() {};
+    CSessionModel ()= default;
+    CSessionModel (const CSessionModel &)= delete;
+    CSessionModel & operator=(const CSessionModel &)= delete;
     void fillSessionMsg(uint32_t nUserId, list<IM::BaseDefine::ContactSessionInfo>& lsContact);
-private:
-    static CSessionModel* m_pInstance;
 };
 
 #endif /*defined(__SESSIONMODEL_H__) */

@@ -13,13 +13,13 @@
  */
 
 #include "CachePool.h"
-#include "base/ConfigFileReader.h"
+#include "yaml-cpp/yaml.h"
 #include "base/slog.h"
+#include "algorithm"
 
 #define MIN_CACHE_CONN_CNT	2
 
-CacheManager* CacheManager::s_cache_manager = NULL;
-
+ 
 CacheConn::CacheConn(CachePool* pCachePool)
 {
 	m_pCachePool = pCachePool;
@@ -595,7 +595,7 @@ int CachePool::Init()
 		m_free_list.push_back(pConn);
 	}
 
-	SPDLOG_ERROR("cache pool: %s, list size: %lu", m_pool_name.c_str(), m_free_list.size());
+	SPDLOG_ERROR("cache pool: {}, list size: {}", m_pool_name.c_str(), m_free_list.size());
 	return 0;
 }
 
@@ -648,73 +648,44 @@ void CachePool::RelCacheConn(CacheConn* pCacheConn)
 	m_free_notify.Signal();
 	m_free_notify.Unlock();
 }
-
-///////////
-CacheManager::CacheManager()
-{
-
-}
-
-CacheManager::~CacheManager()
-{
-
-}
-
-CacheManager* CacheManager::getInstance()
-{
-	if (!s_cache_manager) {
-		s_cache_manager = new CacheManager();
-		if (s_cache_manager->Init()) {
-			delete s_cache_manager;
-			s_cache_manager = NULL;
-		}
-	}
-
-	return s_cache_manager;
-}
+ 
 
 int CacheManager::Init()
 {
-	CConfigFileReader config_file("dbproxyserver.conf");
+  	YAML::Node root = YAML::LoadFile("dbproxyserver.yaml");
+	struct NodePoint {
+		std::string name;
+    	std::string host;
+    	int port;
+		int db;
+		int maxConn;
+	};
+	
+	if(!root["CacheInstances"].IsDefined() || !root["CacheInstances"].IsSequence()) { //IsDefined() 判断节点是否存在
+        return 1;
+    }
+	for(size_t i = 0; i < root["CacheInstances"].size(); ++i) {
+		YAML::Node node = root["CacheInstances"][i];
+ 		if(!node.IsMap()) { //判断是否是map结构， IsMap
+            continue;
+        }
+		NodePoint p ;
+		p.name = node["name"].as<std::string>();
+		p.host = node["host"].as<std::string>();
+		p.port = node["port"].as<int>();
+		p.db   = node["db"].as<int>();
+		p.maxConn = node["maxConn"].as<int>();
+		SPDLOG_ERROR("Init cache manager name: {}, host:{} port:{} maxConn:{} ", p.name.c_str(),p.host.c_str(), p.port, p.maxConn );
 
-	char* cache_instances = config_file.GetConfigName("CacheInstances");
-	if (!cache_instances) {
-		SPDLOG_ERROR("not configure CacheIntance");
-		return 1;
-	}
-
-	char host[64];
-	char port[64];
-	char db[64];
-    char maxconncnt[64];
-	CStrExplode instances_name(cache_instances, ',');
-	for (uint32_t i = 0; i < instances_name.GetItemCnt(); i++) {
-		char* pool_name = instances_name.GetItem(i);
-		//printf("%s", pool_name);
-		snprintf(host, 64, "%s_host", pool_name);
-		snprintf(port, 64, "%s_port", pool_name);
-		snprintf(db, 64, "%s_db", pool_name);
-        snprintf(maxconncnt, 64, "%s_maxconncnt", pool_name);
-
-		char* cache_host = config_file.GetConfigName(host);
-		char* str_cache_port = config_file.GetConfigName(port);
-		char* str_cache_db = config_file.GetConfigName(db);
-        char* str_max_conn_cnt = config_file.GetConfigName(maxconncnt);
-		if (!cache_host || !str_cache_port || !str_cache_db || !str_max_conn_cnt) {
-			SPDLOG_ERROR("not configure cache instance: %s", pool_name);
-			return 2;
-		}
-
-		CachePool* pCachePool = new CachePool(pool_name, cache_host, atoi(str_cache_port),
-				atoi(str_cache_db), atoi(str_max_conn_cnt));
+		CachePool* pCachePool = new CachePool(p.name.c_str(), p.host.c_str(), p.port,p.db, p.maxConn);
 		if (pCachePool->Init()) {
 			SPDLOG_ERROR("Init cache pool failed");
-			return 3;
+			return 1;
 		}
-
-		m_cache_pool_map.insert(make_pair(pool_name, pCachePool));
+		m_cache_pool_map.insert(make_pair(p.name, pCachePool));
 	}
 
+	 
 	return 0;
 }
 

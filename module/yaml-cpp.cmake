@@ -1,11 +1,11 @@
 include(ExternalProject)
 
-set(YAML-CPP_ROOT          ${CMAKE_CURRENT_BINARY_DIR}/local/yaml-cpp-0.6.3)
+set(YAML-CPP_ROOT          ${CMAKE_CURRENT_BINARY_DIR}/yaml-cpp-0.6.3)
 
 ExternalProject_Add(yaml-cpp-0.6.3
         PREFIX ${YAML-CPP_ROOT}
         #--Download step--------------
-        URL ${CMAKE_SOURCE_DIR}/thirdpart/yaml-cpp-0.6.3.tar.gz
+        URL ${CMAKE_SOURCE_DIR}/module/local/yaml-cpp-0.6.3.tar.gz
         #URL_HASH SHA1=7fdb90a2d45085feb8b76167cae419ad4c211d6b
         #--Configure step-------------
         CONFIGURE_COMMAND cd ${YAML-CPP_ROOT}/src/yaml-cpp-0.6.3  &&  cmake -D CMAKE_INSTALL_PREFIX=${YAML-CPP_ROOT} .

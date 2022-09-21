@@ -18,27 +18,7 @@
 #include "base/slog.h"
 
 using namespace std;
-
-CRelationModel* CRelationModel::m_pInstance = NULL;
-
-CRelationModel::CRelationModel()
-{
-
-}
-
-CRelationModel::~CRelationModel()
-{
-
-}
-
-CRelationModel* CRelationModel::getInstance()
-{
-	if (!m_pInstance) {
-		m_pInstance = new CRelationModel();
-	}
-
-	return m_pInstance;
-}
+ 
 
 /**
  *  获取会话关系ID

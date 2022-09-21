@@ -23,28 +23,7 @@
 #include "base/slog.h"
 
 
-CGroupModel* CGroupModel::m_pInstance = NULL;
-
-/**
- *  <#Description#>
- */
-CGroupModel::CGroupModel()
-{
-    
-}
-
-CGroupModel::~CGroupModel()
-{
-    
-}
-
-CGroupModel* CGroupModel::getInstance()
-{
-    if (!m_pInstance) {
-        m_pInstance = new CGroupModel();
-    }
-    return m_pInstance;
-}
+ 
 
 /**
  *  创建群

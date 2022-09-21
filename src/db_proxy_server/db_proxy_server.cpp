@@ -24,7 +24,7 @@
 #include "business/FileModel.h"
 #include "SyncCenter.h"
 #include "base/slog.h"
-
+#include "yaml-cpp/yaml.h"
 
 string strAudioEnc;
 // this callback will be replaced by imconn_callback() in OnConnect()
@@ -51,74 +51,35 @@ int main(int argc, char* argv[])
 
 	signal(SIGPIPE, SIG_IGN);
 	srand(time(NULL));
-
-	CacheManager* pCacheManager = CacheManager::getInstance();
-	if (!pCacheManager) {
-		SPDLOG_ERROR("CacheManager init failed");
+	
+	if (CacheManager::getInstance()->Init() != 0 ){
 		return -1;
 	}
-
-	CDBManager* pDBManager = CDBManager::getInstance();
-	if (!pDBManager) {
-		SPDLOG_ERROR("DBManager init failed");
+	if (CDBManager::getInstance()->Init() != 0 ){
 		return -1;
 	}
-puts("db init success");
-	// 主线程初始化单例，不然在工作线程可能会出现多次初始化
-	if (!CAudioModel::getInstance()) {
-		return -1;
-	}
-    
-    if (!CGroupMessageModel::getInstance()) {
-        return -1;
-    }
-    
-    if (!CGroupModel::getInstance()) {
-        return -1;
-    }
-    
-    if (!CMessageModel::getInstance()) {
-        return -1;
-    }
+	
+	 
+	puts("db init success");
+	 
+	YAML::Node config_file = YAML::LoadFile("dbproxyserver.yaml");
+	std::string listenIp = config_file["ListenIP"].as<std::string>();
+	uint16_t listenPort = config_file["ListenPort"].as<uint16_t>();
+	uint32_t thread_num = config_file["ThreadNum"].as<uint32_t>();
+	string strFileSite = config_file["MsfsSite"].as<std::string>();
+	string str_aes_key = config_file["aesKey"].as<std::string>();
 
-	if (!CSessionModel::getInstance()) {
-		return -1;
-	}
-    
-    if(!CRelationModel::getInstance())
-    {
-        return -1;
-    }
-    
-    if (!CUserModel::getInstance()) {
-        return -1;
-    }
-    
-    if (!CFileModel::getInstance()) {
-        return -1;
-    }
-
-
-	CConfigFileReader config_file("dbproxyserver.conf");
-
-	char* listen_ip = config_file.GetConfigName("ListenIP");
-	char* str_listen_port = config_file.GetConfigName("ListenPort");
-	char* str_thread_num = config_file.GetConfigName("ThreadNum");
-    char* str_file_site = config_file.GetConfigName("MsfsSite");
-    char* str_aes_key = config_file.GetConfigName("aesKey");
-
-	if (!listen_ip || !str_listen_port || !str_thread_num || !str_file_site || !str_aes_key) {
+	if (listenIp.empty() || listenPort == 0 || thread_num == 0 || strFileSite.empty() || str_aes_key.empty()) {
 		SPDLOG_ERROR("missing ListenIP/ListenPort/ThreadNum/MsfsSite/aesKey, exit...");
 		return -1;
 	}
     
-    if(strlen(str_aes_key) != 32)
+    if(str_aes_key.length() != 32)
     {
         SPDLOG_ERROR("aes key is invalied");
         return -2;
     }
-    string strAesKey(str_aes_key, 32);
-    CAes cAes = CAes(strAesKey);
+    CAes cAes = CAes(str_aes_key);
     string strAudio = "[语音]";
     char* pAudioEnc;
     uint32_t nOutLen;
@@ -128,11 +89,8 @@ puts("db init success");
         strAudioEnc.append(pAudioEnc, nOutLen);
         cAes.Free(pAudioEnc);
     }
+ 
 
-	uint16_t listen_port = atoi(str_listen_port);
-	uint32_t thread_num = atoi(str_thread_num);
-    
-    string strFileSite(str_file_site);
     CAudioModel::getInstance()->setUrl(strFileSite);
 
 	int ret = netlib_init();
@@ -149,14 +107,14 @@ puts("db init success");
     CSyncCenter::getInstance()->init();
     CSyncCenter::getInstance()->startSync();
 
-	CStrExplode listen_ip_list(listen_ip, ';');
-	for (uint32_t i = 0; i < listen_ip_list.GetItemCnt(); i++) {
-		ret = netlib_listen(listen_ip_list.GetItem(i), listen_port, proxy_serv_callback, NULL);
+	CStrExplode listen_ip_list((char *)listenIp.c_str(), ';');
+ 	for (uint32_t i = 0; i < listen_ip_list.GetItemCnt(); i++) {
+		ret = netlib_listen(listen_ip_list.GetItem(i), listenPort, proxy_serv_callback, NULL);
 		if (ret == NETLIB_ERROR)
 			return ret;
 	}
 
-	printf("server start listen on: %s:{}\n", listen_ip,  listen_port);
+	printf("server start listen on: %s:%d \n", listenIp.c_str(),  listenPort);
 	printf("now enter the event loop...\n");
     writePid();
 	netlib_eventloop(10);

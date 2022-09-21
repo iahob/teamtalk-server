@@ -29,8 +29,11 @@ const uint32_t MAX_UNREAD_COUNT = 100;
 
 class CGroupModel {
 public:
-    virtual ~CGroupModel();
-    static CGroupModel* getInstance();
+    virtual ~CGroupModel() = default;
+    static CGroupModel* getInstance(){
+        static CGroupModel m_pInstance;
+        return &m_pInstance;
+    };
     
 public:
     uint32_t createGroup(uint32_t nUserId, const string& strGroupName, const string& strGroupAvatar, uint32_t nGroupType, set<uint32_t>& setMember);
@@ -48,7 +51,9 @@ public:
     bool isValidateGroupId(uint32_t nGroupId);
     uint32_t getUserJoinTime(uint32_t nGroupId, uint32_t nUserId);
 private:
-    CGroupModel();
+    CGroupModel ()= default;
+    CGroupModel (const CGroupModel &)= delete;
+    CGroupModel & operator=(const CGroupModel &)= delete;
     
     bool insertNewGroup(uint32_t reqUserId, const string& groupName, const string& groupAvatar, uint32_t groupType, uint32_t memCnt, uint32_t& groupId);
     bool insertNewMember(uint32_t nGroupId,set<uint32_t>& setUsers);
@@ -63,9 +68,7 @@ private:
     void clearGroupMember(uint32_t nGroupId);
     
     void fillGroupMember(list<IM::BaseDefine::GroupInfo>& lsGroups);
-        
-private:
-    static CGroupModel*	m_pInstance;
+   
 };
 
 #endif /* defined(__IM_GROUP_MODEL__) */

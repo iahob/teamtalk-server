@@ -23,17 +23,20 @@ using namespace std;
 
 class CRelationModel {
 public:
-	virtual ~CRelationModel();
+	virtual ~CRelationModel()=default;
 
-	static CRelationModel* getInstance();
+	static CRelationModel* getInstance(){
+        static CRelationModel m_pInstance;
+        return &m_pInstance;
+    };
     uint32_t getRelationId(uint32_t nUserAId, uint32_t nUserBId, bool bAdd);
     bool updateRelation(uint32_t nRelationId, uint32_t nUpdateTime);
     bool removeRelation(uint32_t nRelationId);
     
 private:
-	CRelationModel();
+    CRelationModel ()= default;
+    CRelationModel (const CRelationModel &)= delete;
+    CRelationModel & operator=(const CRelationModel &)= delete;
     uint32_t addRelation(uint32_t nSmallId, uint32_t nBigId);
-private:
-	static CRelationModel*	m_pInstance;
-};
+ };
 #endif
