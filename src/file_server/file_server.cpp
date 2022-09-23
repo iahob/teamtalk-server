@@ -16,35 +16,7 @@
 #include "file_client_conn.h"
 #include "file_msg_server_conn.h"
 #include "base/slog.h"
-/*
- Address=0.0.0.0         # address for client
- 
- ClientListenIP=0.0.0.0
- ClientListenPort=8600   # Listening Port for client
- 
- MsgServerListenIP=127.0.0.1
- MsgServerListenPort=8601
- 
- TaskTimeout=60         # Task Timeout (seconds)
- */
-
-//void file_client_conn_callback(void* callback_data, uint8_t msg, uint32_t handle, void* pParam) {
-//	if (msg == NETLIB_MSG_CONNECT) {
-//		CFileConn* pConn = new CFileConn();
-//		pConn->OnConnect(handle);
-//	} else {
-//		SPDLOG_ERROR("!!!error msg: {} ", msg);
-//	}
-//}
-
-//void file_msg_server_conn_callback(void* callback_data, uint8_t msg, uint32_t handle, void* pParam) {
-//    if (msg == NETLIB_MSG_CONNECT) {
-//        CFileConn* pConn = new CFileConn();
-//        pConn->OnConnect(handle);
-//    } else {
-//        SPDLOG_ERROR("!!!error msg: {} ", msg);
-//    }
-//}
+#include "yaml-cpp/yaml.h"
 
 int main(int argc, char* argv[])
 {
@@ -65,32 +37,19 @@ int main(int argc, char* argv[])
 
 	signal(SIGPIPE, SIG_IGN);
 
-	CConfigFileReader config_file("fileserver.conf");
-
-    char* str_client_listen_ip = config_file.GetConfigName("ClientListenIP");
-	char* str_client_listen_port = config_file.GetConfigName("ClientListenPort");
-    char* str_msg_server_listen_ip = config_file.GetConfigName("MsgServerListenIP");
-    char* str_msg_server_listen_port = config_file.GetConfigName("MsgServerListenPort");
-
-    char* str_task_timeout = config_file.GetConfigName("TaskTimeout");
-
-	if (!str_client_listen_ip || !str_client_listen_port || !str_msg_server_listen_ip || !str_msg_server_listen_port) {
+    YAML::Node root = YAML::LoadFile("fileserver.yaml");
+    std::string clientListenIp = root["ClientListenIP"].as<std::string>();
+    uint32_t clientPort = root["ClientListenPort"].as<uint32_t>();
+    std::string serverListenIp = root["MsgServerListenIP"].as<std::string>();
+    uint32_t serverPort = root["MsgServerListenPort"].as<uint32_t>();
+    uint32_t taskTimeout = root["TaskTimeout"].as<uint32_t>();
+   
+	if (clientListenIp.empty() || clientPort!=0 || serverListenIp.empty() || serverPort!=0 ) {
 		SPDLOG_ERROR("config item missing, exit... ");
 		return -1;
 	}
-
-    uint16_t client_listen_port = atoi(str_client_listen_port);
- 
-    CStrExplode client_listen_ip_list(str_client_listen_ip, ';');
-    std::list<IM::BaseDefine::IpAddr> q;
-    for (uint32_t i = 0; i < client_listen_ip_list.GetItemCnt(); i++) {
-        ConfigUtil::GetInstance()->AddAddress(client_listen_ip_list.GetItem(i), client_listen_port);
-    }
-    
-    uint16_t msg_server_listen_port = atoi(str_msg_server_listen_port);
-    uint32_t task_timeout = atoi(str_task_timeout);
-
-    ConfigUtil::GetInstance()->SetTaskTimeout(task_timeout);
+    ConfigUtil::Instance()->AddAddress(clientListenIp.c_str(), clientPort);
+    ConfigUtil::Instance()->SetTaskTimeout(taskTimeout);
     
     InitializeFileMsgServerConn();
 	InitializeFileClientConn();
@@ -100,34 +59,26 @@ int main(int argc, char* argv[])
 	if (ret == NETLIB_ERROR)
 		return ret;
 
-
-	for (uint32_t i = 0; i < client_listen_ip_list.GetItemCnt(); i++) {
-		ret = netlib_listen(client_listen_ip_list.GetItem(i), client_listen_port, FileClientConnCallback, NULL);
-        if (ret == NETLIB_ERROR) {
-            printf("listen %s:%d error!!\n", client_listen_ip_list.GetItem(i), client_listen_port);
-			return ret;
-        } else {
-            printf("server start listen on %s:%d\n", client_listen_ip_list.GetItem(i), client_listen_port);
-        }
-	}
-
-    ret = netlib_listen(str_msg_server_listen_ip, msg_server_listen_port, FileMsgServerConnCallback, NULL);
+    ret = netlib_listen(clientListenIp.c_str(), clientPort, FileClientConnCallback, NULL);
     if (ret == NETLIB_ERROR) {
-        printf("listen %s:%d error!!\n", str_msg_server_listen_ip, msg_server_listen_port);
+        SPDLOG_DEBUG("listen {}:{} error!!", clientListenIp.c_str(), clientPort);
         return ret;
     } else {
-        printf("server start listen on %s:%d\n", str_msg_server_listen_ip, msg_server_listen_port);
+        SPDLOG_DEBUG("server start listen on {}:{}", clientListenIp.c_str().GetItem(i), clientPort);
+    }   
+	 
+
+    ret = netlib_listen(serverListenIp.c_str(), serverPort, FileMsgServerConnCallback, NULL);
+    if (ret == NETLIB_ERROR) {
+        SPDLOG_DEBUG("listen {}:{} error!!\n", serverListenIp.c_str(), serverPort);
+        return ret;
+    } else {
+        SPDLOG_DEBUG("server start listen on %s:%d\n", serverListenIp.c_str(), serverPort);
     }
-
-	printf("now enter the event loop...\n");
-    
+	SPDLOG_DEBUG("now enter the event loop...\n");
     writePid();
-
 	netlib_eventloop();
-
-	printf("exiting.......\n");
-	SPDLOG_ERROR("exit");
-
+	SPDLOG_DEBUG("exiting.......\n");
 	return 0;
 }
 

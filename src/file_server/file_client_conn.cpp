@@ -43,7 +43,7 @@ void FileClientConnTimerCallback(void* callback_data, uint8_t msg, uint32_t hand
 
 void FileTaskTimerCallback(void* callback_data, uint8_t msg, uint32_t handle, void* pParam) {
     uint64_t tick = get_tick_count();
-    TransferTaskManager::GetInstance()->OnTimer(tick);
+    TransferTaskManager::Instance()->OnTimer(tick);
 }
 
 void InitializeFileClientConn() {
@@ -88,7 +88,7 @@ void FileClientConn::Close() {
         }
         transfer_task_->SetConnByUserID(user_id_, NULL);
 
-        TransferTaskManager::GetInstance()->DeleteTransferTaskByConnClose(transfer_task_->task_id());
+        TransferTaskManager::Instance()->DeleteTransferTaskByConnClose(transfer_task_->task_id());
         
         // 关闭另一个连接
 //        if (transfer_task_->GetTransMode() == FILE_TYPE_ONLINE) {
@@ -236,13 +236,13 @@ void FileClientConn::_HandleClientFileloginReq(CImPdu* pdu) {
     bool rv = false;
     do {
         // 查找任务是否存在
-        transfer_task = TransferTaskManager::GetInstance()->FindByTaskID(task_id);
+        transfer_task = TransferTaskManager::Instance()->FindByTaskID(task_id);
         
         if (transfer_task == NULL) {
             if (mode == CLIENT_OFFLINE_DOWNLOAD) {
                 // 文件不存在，检查是否是离线下载，有可能是文件服务器重启
                 // 尝试从磁盘加载
-                transfer_task = TransferTaskManager::GetInstance()->NewTransferTask(task_id, user_id);
+                transfer_task = TransferTaskManager::Instance()->NewTransferTask(task_id, user_id);
                 // 需要再次判断是否加载成功
                 if (transfer_task == NULL) {
                     SPDLOG_ERROR("Find task id failed, user_id={}, taks_id={}, mode={}", user_id, task_id.c_str(), mode);

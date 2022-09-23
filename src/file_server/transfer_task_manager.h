@@ -15,7 +15,7 @@
 
 class TransferTaskManager : public Singleton<TransferTaskManager> {
 public:
-    ~TransferTaskManager();
+    virtual ~TransferTaskManager(){};
     
     void OnTimer(uint64_t tick);
     
@@ -40,7 +40,7 @@ public:
 private:
     friend class Singleton<TransferTaskManager>;
     
-    TransferTaskManager();
+    TransferTaskManager(){};
     
     TransferTaskMap transfer_tasks_;
     // TransferTaskConnkMap conn_tasks_;

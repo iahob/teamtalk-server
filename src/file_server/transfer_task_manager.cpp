@@ -17,9 +17,7 @@
 
 using namespace IM::BaseDefine;
 
-TransferTaskManager::TransferTaskManager() {
-    
-}
+ 
 
 void TransferTaskManager::OnTimer(uint64_t tick) {
     for (TransferTaskMap::iterator it = transfer_tasks_.begin(); it != transfer_tasks_.end();) {
@@ -32,12 +30,12 @@ void TransferTaskManager::OnTimer(uint64_t tick) {
         if (task->state() != kTransferTaskStateWaitingUpload &&
             task->state() == kTransferTaskStateTransferDone) {
             long esp = time(NULL) - task->create_time();
-            if (esp > ConfigUtil::GetInstance()->GetTaskTimeout()) {
+            if (esp > ConfigUtil::Instance()->GetTaskTimeout()) {
                 if (task->GetFromConn()) {
                     FileClientConn* conn = reinterpret_cast<FileClientConn*>(task->GetFromConn());
                     conn->ClearTransferTask();
                 }
-                if (task->GetToConn()) {
+                if (task->GetToConn()) { 
                     FileClientConn* conn = reinterpret_cast<FileClientConn*>(task->GetToConn());
                     conn->ClearTransferTask();
                 }

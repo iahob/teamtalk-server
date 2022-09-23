@@ -142,7 +142,7 @@ void FileMsgServerConn::_HandleMsgFileTransferReq(CImPdu* pdu) {
         }
         SPDLOG_ERROR("trams_mode={}, task_id={}, from_id={}, to_id={}, file_name={}, file_size={}", transfer_req.trans_mode(), task_id.c_str(), from_id, to_id, transfer_req.file_name().c_str(), transfer_req.file_size());
         
-        BaseTransferTask* transfer_task = TransferTaskManager::GetInstance()->NewTransferTask(
+        BaseTransferTask* transfer_task = TransferTaskManager::Instance()->NewTransferTask(
                                                                                               transfer_req.trans_mode(),
                                                                                               task_id,
                                                                                               from_id,
@@ -177,7 +177,7 @@ void FileMsgServerConn::_HandleMsgFileTransferReq(CImPdu* pdu) {
 void FileMsgServerConn::_HandleGetServerAddressReq(CImPdu* pPdu) {
     IM::Server::IMFileServerIPRsp msg;
     
-    const std::list<IM::BaseDefine::IpAddr>& addrs = ConfigUtil::GetInstance()->GetAddressList();
+    const std::list<IM::BaseDefine::IpAddr>& addrs = ConfigUtil::Instance()->GetAddressList();
     
     for (std::list<IM::BaseDefine::IpAddr>::const_iterator it=addrs.begin(); it!=addrs.end(); ++it) {
         IM::BaseDefine::IpAddr* addr = msg.add_ip_addr_list();
