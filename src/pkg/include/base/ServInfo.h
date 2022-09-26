@@ -15,14 +15,14 @@
 #define MAX_RECONNECT_CNT	64
 #define MIN_RECONNECT_CNT	4
 
-typedef struct {
+struct serv_info_t {
+	string  	server_name;
 	string		server_ip;
 	uint16_t	server_port;
 	uint32_t	idle_cnt;
 	uint32_t	reconnect_cnt;
 	CImConn*	serv_conn;
-} serv_info_t;
-
+} ; 
 template <class T>
 void serv_init(serv_info_t* server_list, uint32_t server_count)
 {
@@ -34,7 +34,17 @@ void serv_init(serv_info_t* server_list, uint32_t server_count)
 		server_list[i].reconnect_cnt = MIN_RECONNECT_CNT / 2;
 	}
 }
-
+template <class T>
+void serv_init(std::vector<serv_info_t> nodes)
+{
+	for (uint32_t i = 0; i < nodes.size(); i++) {
+		T* pConn = new T();
+		pConn->Connect(nodes[i].server_ip.c_str(), nodes[i].server_port, i);
+		nodes[i].serv_conn = pConn;
+		nodes[i].idle_cnt = 0;
+		nodes[i].reconnect_cnt = MIN_RECONNECT_CNT / 2;
+	}
+}
 template <class T>
 void serv_check_reconnect(serv_info_t* server_list, uint32_t server_count)
 {

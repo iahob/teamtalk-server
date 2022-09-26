@@ -86,6 +86,10 @@ void init_db_serv_conn(serv_info_t* server_list, uint32_t server_count, uint32_t
 
 	netlib_register_timer(db_server_conn_timer_callback, NULL, 1000);
 }
+void init_db_serv_conn(std::vector<serv_info_t> nodes) {
+    serv_init<CDBServConn>(nodes);
+	netlib_register_timer(db_server_conn_timer_callback, NULL, 1000);
+}
 
 // get a random db server connection in the range [start_pos, stop_pos)
 static CDBServConn* get_db_server_conn_in_range(uint32_t start_pos, uint32_t stop_pos)

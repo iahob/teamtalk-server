@@ -17,6 +17,7 @@
 #include "base/util.h"
 #include "base/EncDec.h"
 #include "base/slog.h"
+#include "yaml-cpp/yaml.h"
 
 CAes* pAes;
 
@@ -50,72 +51,66 @@ int main(int argc, char* argv[])
     
 	SPDLOG_ERROR("MsgServer max files can open: {} ", getdtablesize());
     
-	CConfigFileReader config_file("httpmsgserver.conf");
-    
-	char* listen_ip = config_file.GetConfigName("ListenIP");
-	char* str_listen_port = config_file.GetConfigName("ListenPort");
-    
-	uint32_t db_server_count = 0;
-	serv_info_t* db_server_list = read_server_config(&config_file, "DBServerIP", "DBServerPort", db_server_count);
-    
-	uint32_t route_server_count = 0;
-	serv_info_t* route_server_list = read_server_config(&config_file, "RouteServerIP", "RouteServerPort", route_server_count);
-
-	// 到BusinessServer的开多个并发的连接
-	uint32_t concurrent_db_conn_cnt = DEFAULT_CONCURRENT_DB_CONN_CNT;
-	uint32_t db_server_count2 = db_server_count * DEFAULT_CONCURRENT_DB_CONN_CNT;
-	char* concurrent_db_conn = config_file.GetConfigName("ConcurrentDBConnCnt");
-	if (concurrent_db_conn) {
-		concurrent_db_conn_cnt  = atoi(concurrent_db_conn);
-		db_server_count2 = db_server_count * concurrent_db_conn_cnt;
+	YAML::Node root = YAML::LoadFile("httpmsgserver.yaml");
+	std::string serverListenIp = root["ListenIP"].as<std::string>();
+    uint32_t serverPort = root["ListenPort"].as<uint32_t>();
+	std::string aesKey = root["aesKey"].as<std::string>();
+	if (aesKey.length() != 32 ) {
+		SPDLOG_ERROR("aes key is invalied");
+		return 0;
 	}
+    pAes = new CAes(aesKey);
 
-	serv_info_t* db_server_list2 = NULL;
-	if (db_server_count2 > 0) {
-		db_server_list2 = new serv_info_t [ db_server_count2];
-		for (uint32_t i = 0; i < db_server_count2; i++) {
-			db_server_list2[i].server_ip = db_server_list[i / concurrent_db_conn_cnt].server_ip.c_str();
-			db_server_list2[i].server_port = db_server_list[i / concurrent_db_conn_cnt].server_port;
-		}
+	std::vector<serv_info_t> dbNodes;
+	std::vector<serv_info_t> rtNodes;	
+	for(size_t i = 0; i < root["DBServer"].size(); ++i) {
+		YAML::Node node = root["DBServer"][i];
+ 		if(!node.IsMap()) { //判断是否是map结构， IsMap
+            continue;
+        }
+		serv_info_t p ;
+		p.server_name = node["name"].as<std::string>();
+		p.server_ip = node["host"].as<std::string>();
+		p.server_port = node["port"].as<int>();
+		dbNodes.push_back(p);
 	}
-
-
-	char* str_aes_key = config_file.GetConfigName("aesKey");
-	if (!str_aes_key || strlen(str_aes_key)!=32) {
-       	   	 SPDLOG_ERROR("aes key is invalied");
-       		 return -1;
-    }
-    pAes = new CAes(str_aes_key);
-
-	if (!listen_ip || !str_listen_port) {
+	for(size_t i = 0; i < root["RouterServer"].size(); ++i) {
+		YAML::Node node = root["RouterServer"][i];
+ 		if(!node.IsMap()) { //判断是否是map结构， IsMap
+            continue;
+        }
+		serv_info_t p ;
+		p.server_name = node["name"].as<std::string>();
+		p.server_ip = node["host"].as<std::string>();
+		p.server_port = node["port"].as<int>();
+		rtNodes.push_back(p);
+	}
+	 
+	if (serverListenIp.empty() || serverPort == 0 ) {
 		SPDLOG_ERROR("config file miss, exit... ");
 		return -1;
 	}
     
-	uint16_t listen_port = atoi(str_listen_port);
-    
+      
 	int ret = netlib_init();
     
 	if (ret == NETLIB_ERROR)
 		return ret;
     
-	CStrExplode listen_ip_list(listen_ip, ';');
-	for (uint32_t i = 0; i < listen_ip_list.GetItemCnt(); i++) {
-		ret = netlib_listen(listen_ip_list.GetItem(i), listen_port, http_callback, NULL);
-		if (ret == NETLIB_ERROR)
-			return ret;
-	}
+	ret = netlib_listen(serverListenIp.c_str(), serverPort, http_callback, NULL);
+	if (ret == NETLIB_ERROR)
+		return ret;
 
-	printf("server start listen on: %s:%d\n", listen_ip, listen_port);
+	printf("server start listen on: %s:%d\n", serverListenIp.c_str(), serverPort);
     
 	init_http_conn();
     
-	if (db_server_count > 0) {
-		HTTP::init_db_serv_conn(db_server_list2, db_server_count2, concurrent_db_conn_cnt);
+	if (dbNodes.size() > 0) {
+		HTTP::init_db_serv_conn(dbNodes);
 	}
 
-	if (route_server_count > 0) {
-		HTTP::init_route_serv_conn(route_server_list, route_server_count);
+	if (rtNodes.size() > 0) {
+		HTTP::init_route_serv_conn(rtNodes);
 	}
 
 	printf("now enter the event loop...\n");

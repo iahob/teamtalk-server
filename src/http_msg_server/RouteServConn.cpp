@@ -49,6 +49,10 @@ void init_route_serv_conn(serv_info_t* server_list, uint32_t server_count)
 
 	netlib_register_timer(route_server_conn_timer_callback, NULL, 1000);
 }
+void init_route_serv_conn(std::vector<serv_info_t> nodes) {
+	serv_init<CRouteServConn>(nodes);
+	netlib_register_timer(route_server_conn_timer_callback, NULL, 1000);
+}
 
 bool is_route_server_available()
 {

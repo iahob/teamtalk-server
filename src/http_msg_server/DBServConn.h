@@ -41,6 +41,7 @@ private:
 };
 
 void init_db_serv_conn(serv_info_t* server_list, uint32_t server_count, uint32_t concur_conn_cnt);
+void init_db_serv_conn(std::vector<serv_info_t> nodes);
 CDBServConn* get_db_serv_conn_for_login();
 CDBServConn* get_db_serv_conn();
 

@@ -1,0 +1,22 @@
+ListenIP: 0.0.0.0
+ListenPort: 8400
+
+DBServer: 
+  - name: dbs1
+    host: 127.0.0.1
+    port: 10600
+  - name: dbs2
+    host: 127.0.0.1
+    port: 10600 
+ 
+RouterServer:
+  - name: rs1
+    host: 127.0.0.1
+    port: 8200
+  - name: rs2
+    host: 127.0.0.1
+    port: 8201
+ 
+
+# AES key
+aesKey: 12345678901234567890123456789012
