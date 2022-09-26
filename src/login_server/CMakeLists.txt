@@ -20,7 +20,7 @@ ADD_DEFINITIONS( -g -W -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DAC_HAS_INFO
 #ADD_LIBRARY(${PROJECTNAME} SHARED/STATIC ${SRC_LIST})
 ADD_EXECUTABLE(login_server ${SRC_LIST})
 
-TARGET_LINK_LIBRARIES(login_server base protobuf-lite pthread ssl crypto)
+TARGET_LINK_LIBRARIES(login_server base protobuf-lite pthread ssl crypto yaml-cpp)
 
 target_include_directories(
         login_server PRIVATE
@@ -28,6 +28,8 @@ target_include_directories(
         ../pkg/include
         ../pb/protocol
         /usr/local/include
+        ${YAML_CPP_INCLUDE_DIR}
+
 )
 
 target_link_directories(
@@ -35,4 +37,6 @@ target_link_directories(
         .
         /usr/local/lib
         ../pkg/lib
+        ${YAML_CPP_LIB_DIR}  
+
 )

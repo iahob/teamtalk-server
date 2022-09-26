@@ -12,6 +12,7 @@
 #include "HttpConn.h"
 #include "ipparser.h"
 #include "base/slog.h"
+#include "yaml-cpp/yaml.h"
 
 IpParser* pIpParser = NULL;
 string strMsfsUrl;
@@ -69,60 +70,37 @@ int main(int argc, char* argv[])
 
 	signal(SIGPIPE, SIG_IGN);
 
-	CConfigFileReader config_file("loginserver.conf");
-
-    char* client_listen_ip = config_file.GetConfigName("ClientListenIP");
-    char* str_client_port = config_file.GetConfigName("ClientPort");
-    char* http_listen_ip = config_file.GetConfigName("HttpListenIP");
-    char* str_http_port = config_file.GetConfigName("HttpPort");
-	char* msg_server_listen_ip = config_file.GetConfigName("MsgServerListenIP");
-	char* str_msg_server_port = config_file.GetConfigName("MsgServerPort");
-    char* str_msfs_url = config_file.GetConfigName("msfs");
-    char* str_discovery = config_file.GetConfigName("discovery");
-
-	if (!msg_server_listen_ip || !str_msg_server_port || !http_listen_ip
-        || !str_http_port || !str_msfs_url || !str_discovery) {
-		SPDLOG_ERROR("config item missing, exit... ");
-		return -1;
-	}
-
-	uint16_t client_port = atoi(str_client_port);
-	uint16_t msg_server_port = atoi(str_msg_server_port);
-    uint16_t http_port = atoi(str_http_port);
-    strMsfsUrl = str_msfs_url;
-    strDiscovery = str_discovery;
-    
-    
+	YAML::Node root = YAML::LoadFile("loginserver.yaml");
+ 	std::string clientIP = root["ClientListenIP"].as<std::string>();
+	uint16_t clientPort = root["ClientPort"].as<uint16_t>();
+ 	std::string httpIP = root["HttpListenIP"].as<std::string>();
+	uint16_t httpPort = root["HttpPort"].as<uint16_t>();
+	std::string msgIP = root["MsgServerListenIP"].as<std::string>();
+	uint16_t msgPort = root["MsgServerPort"].as<uint16_t>();
+	strMsfsUrl = root["msfs"].as<std::string>();
+	strDiscovery = root["discovery"].as<std::string>();
+ 
     pIpParser = new IpParser();
     
 	int ret = netlib_init();
 
 	if (ret == NETLIB_ERROR)
 		return ret;
-	CStrExplode client_listen_ip_list(client_listen_ip, ';');
-	for (uint32_t i = 0; i < client_listen_ip_list.GetItemCnt(); i++) {
-		ret = netlib_listen(client_listen_ip_list.GetItem(i), client_port, client_callback, NULL);
-		if (ret == NETLIB_ERROR)
-			return ret;
-	}
-
-	CStrExplode msg_server_listen_ip_list(msg_server_listen_ip, ';');
-	for (uint32_t i = 0; i < msg_server_listen_ip_list.GetItemCnt(); i++) {
-		ret = netlib_listen(msg_server_listen_ip_list.GetItem(i), msg_server_port, msg_serv_callback, NULL);
-		if (ret == NETLIB_ERROR)
-			return ret;
-	}
+	ret = netlib_listen(clientIP.c_str(), clientPort, client_callback, NULL);
+	if (ret == NETLIB_ERROR)
+		return ret;
+	 
+	ret = netlib_listen(httpIP.c_str(), httpPort, msg_serv_callback, NULL);
+	if (ret == NETLIB_ERROR)
+		return ret;
+	 
+    ret = netlib_listen(msgIP.c_str(), msgPort, http_callback, NULL);
+    if (ret == NETLIB_ERROR)
+        return ret;
     
-    CStrExplode http_listen_ip_list(http_listen_ip, ';');
-    for (uint32_t i = 0; i < http_listen_ip_list.GetItemCnt(); i++) {
-        ret = netlib_listen(http_listen_ip_list.GetItem(i), http_port, http_callback, NULL);
-        if (ret == NETLIB_ERROR)
-            return ret;
-    }
-    
-
     SPDLOG_INFO("server start listen on:\nFor client {}:{}\nFor MsgServer: {}:{}\nFor http:{}:{}\n",
-           client_listen_ip, client_port, msg_server_listen_ip, msg_server_port, http_listen_ip, http_port);
+           clientIP, clientPort, msgIP, msgPort, httpIP, httpPort);
+	
 	init_login_conn();
     init_http_conn();
 
