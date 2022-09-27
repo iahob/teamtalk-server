@@ -96,7 +96,7 @@ namespace msfs {
         struct Entry {
             time_t m_lastAccess;
             size_t m_fileSize;
-            byte *m_fileContent;
+            uint8_t *m_fileContent;
 
             Entry() {
                 m_lastAccess = 0;

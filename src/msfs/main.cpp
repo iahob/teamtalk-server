@@ -18,13 +18,13 @@
 #include "FileManager.h"
 #include "base/ThreadPool.h"
 #include "base/slog.h"
+#include "yaml-cpp/yaml.h"
 using namespace std;
 using namespace msfs;
 
 
 FileManager* FileManager::m_instance = NULL;
 FileManager* g_fileManager = NULL;
-CConfigFileReader config_file("msfs.conf");
 CThreadPool g_PostThreadPool;
 CThreadPool g_GetThreadPool;
 
@@ -90,9 +90,8 @@ void http_callback(void* callback_data, uint8_t msg, uint32_t handle,
 }
 
 void doQuitJob() {
-    char fileCntBuf[20] = {0};
-    snprintf(fileCntBuf, 20, "%llu", g_fileManager->getFileCntCurr());
-    config_file.SetConfigValue("FileCnt", fileCntBuf);
+    YAML::Node root = YAML::LoadFile("msfs.yaml");
+    root["FileCnt"] = g_fileManager->getFileCntCurr();
     FileManager::destroyInstance();
     netlib_destroy();
     SPDLOG_ERROR("I'm ready quit...");
@@ -126,54 +125,44 @@ int main(int argc, char* argv[])
            }
        }
     SPDLOG_ERROR("MsgServer max files can open: {}", getdtablesize());
+    // CConfigFileReader config_file("msfs.conf");
 
+    YAML::Node root = YAML::LoadFile("msfs.yaml");
+    std::string listenIP = root["ListenIP"].as<std::string >();
+    uint16_t listenPort = root["ListenPort"].as<uint16_t>();
+    std::string baseDir = root["BaseDir"].as<std::string>();
+    uint32_t fileCnt = root["FileCnt"].as<uint32_t>();
+    uint32_t filesPerDir = root["FilesPerDir"].as<uint32_t>();
+    uint32_t postThreadCnt = root["PostThreadCount"].as<uint32_t>();
+    uint32_t getThreadCnt = root["GetThreadCount"].as<uint32_t>();
 
-    char* listen_ip = config_file.GetConfigName("ListenIP");
-    char* str_listen_port = config_file.GetConfigName("ListenPort");
-    char* base_dir = config_file.GetConfigName("BaseDir");
-    char* str_file_cnt = config_file.GetConfigName("FileCnt");
-    char* str_files_per_dir = config_file.GetConfigName("FilesPerDir");
-    char* str_post_thread_count = config_file.GetConfigName("PostThreadCount");
-    char* str_get_thread_count = config_file.GetConfigName("GetThreadCount");
-
-    if (!listen_ip || !str_listen_port || !base_dir || !str_file_cnt || !str_files_per_dir || !str_post_thread_count || !str_get_thread_count)
+    if (listenIP.empty() || listenPort == 0 || baseDir.empty() || 
+    fileCnt == 0 || filesPerDir == 0 || postThreadCnt == 0 || getThreadCnt == 0)
     {
         SPDLOG_ERROR("config file miss, exit...");
         return -1;
     }
     
-    SPDLOG_ERROR("{},{}",listen_ip, str_listen_port);
-    uint16_t listen_port = atoi(str_listen_port);
-    long long int  fileCnt = atoll(str_file_cnt);
-    int filesPerDir = atoi(str_files_per_dir);
-    int nPostThreadCount = atoi(str_post_thread_count);
-    int nGetThreadCount = atoi(str_get_thread_count);
-    if(nPostThreadCount <= 0 || nGetThreadCount <= 0)
-    {
-        SPDLOG_ERROR("thread count is invalied");
-        return -1;
-    }
-    g_PostThreadPool.Init(nPostThreadCount);
-    g_GetThreadPool.Init(nGetThreadCount);
+    SPDLOG_ERROR("{},{}",listenIP, listenPort);
+    
+    g_PostThreadPool.Init(postThreadCnt);
+    g_GetThreadPool.Init(getThreadCnt);
 
-    g_fileManager = FileManager::getInstance(listen_ip, base_dir, fileCnt, filesPerDir);
+    g_fileManager = FileManager::getInstance(listenIP.c_str(), baseDir.c_str(), fileCnt, filesPerDir);
 	int ret = g_fileManager->initDir();
 	if (ret) {
-        SPDLOG_ERROR("The BaseDir is set incorrectly :{}\n",base_dir);
+        SPDLOG_ERROR("The BaseDir is set incorrectly :{} ",baseDir);
 		return ret;
     }
 	ret = netlib_init();
     if (ret == NETLIB_ERROR)
         return ret;
 
-    CStrExplode listen_ip_list(listen_ip, ';');
-    for (uint32_t i = 0; i < listen_ip_list.GetItemCnt(); i++)
-    {
-        ret = netlib_listen(listen_ip_list.GetItem(i), listen_port,
-                http_callback, NULL);
-        if (ret == NETLIB_ERROR)
-            return ret;
-    }
+    
+    ret = netlib_listen(listenIP.c_str(), listenPort,http_callback, NULL);
+    if (ret == NETLIB_ERROR)
+        return ret;
+
 
     signal(SIGINT, Stop);
     signal (SIGTERM, Stop);
@@ -181,9 +170,9 @@ int main(int argc, char* argv[])
     signal(SIGPIPE, SIG_IGN);
     signal (SIGHUP, SIG_IGN);
 
-    SPDLOG_INFO("server start listen on: {}:{}\n", listen_ip, listen_port);
+    SPDLOG_INFO("server start listen on: {}:{} ", listenIP, listenPort);
     init_http_conn();
-    SPDLOG_INFO("now enter the event loop...\n");
+    SPDLOG_INFO("now enter the event loop... ");
     writePid();
 
     netlib_eventloop();
