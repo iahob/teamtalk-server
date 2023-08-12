@@ -3,6 +3,9 @@ PROJECT(Server)
 message(STATUS CMAKE_SOURCE_DIR:"${CMAKE_SOURCE_DIR}")
 message(STATUS CMAKE_MAKE_PROGRAM:"${CMAKE_MAKE_PROGRAM}" )
 message(STATUS CMAKE_COMMAND:"${CMAKE_COMMAND}" )
+message(STATUS CMAKE_CURRENT_BINARY_DIR:"${CMAKE_CURRENT_BINARY_DIR}")
+message(STATUS CMAKE_CURRENT_SOURCE_DIR:"${CMAKE_CURRENT_SOURCE_DIR}")
+
 
 
 ADD_DEFINITIONS( -g -W -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DAC_HAS_INFO
@@ -22,4 +25,4 @@ include(spdlog)
 include(jsoncpp)
 include(curl)
 include(yaml-cpp)
-add_subdirectory(src)
+add_subdirectory(teamtalk)
