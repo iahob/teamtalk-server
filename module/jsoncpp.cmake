@@ -6,7 +6,7 @@ set(JSONCPP_SOURCE_PATH      ${JSONCPP_ROOT}/src/${JSONCPP_NAME})
 
 set(JSONCPP_URL             ${CMAKE_SOURCE_DIR}/module/local/${JSONCPP_NAME}.tar.gz)
 set(JSONCPP_CONFIGURE        ${CMAKE_COMMAND} ${JSONCPP_SOURCE_PATH} -DCMAKE_INSTALL_PREFIX=/usr/local/)
-set(JSONCPP_MAKE            make -j 8)
+set(JSONCPP_MAKE            pwd > a.txt && make -j 16)
 set(JSONCPP_INSTALL         make install)
 
 ExternalProject_Add(

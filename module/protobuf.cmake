@@ -6,7 +6,7 @@ set(HIREDIS_SOURCE_PATH      ${PROTOBUF_ROOT}/src/${PROTOBUF_NAME})
 
 set(PROTOBUF_URL             ${CMAKE_SOURCE_DIR}/module/local/${PROTOBUF_NAME}.tar.gz)
 set(PROTOBUF_CONFIGURE       ${HIREDIS_SOURCE_PATH}/configure --prefix=/usr/local/)
-set(PROTOBUF_MAKE            make -j 8)
+set(PROTOBUF_MAKE            make -j 16)
 set(PROTOBUF_INSTALL         make install)
 
 ExternalProject_Add(${PROTOBUF_NAME}
