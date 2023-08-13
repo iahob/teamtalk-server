@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 PROJECT(http_msg_server)
 
 AUX_SOURCE_DIRECTORY(./ SRC_LIST)
-
+AUX_SOURCE_DIRECTORY(../pb/protocol SRC_LIST)
  SET(EXECUTABLE_OUTPUT_PATH  ${CMAKE_SOURCE_DIR}/public/bin)
 
 if(APPLE)
@@ -17,7 +17,7 @@ ADD_DEFINITIONS( -g -W -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DAC_HAS_INFO
 
 ADD_EXECUTABLE(http_msg_server ${SRC_LIST} )
 
-TARGET_LINK_LIBRARIES(http_msg_server base protobuf  pthread ssl crypto yaml-cpp)
+TARGET_LINK_LIBRARIES(http_msg_server protobuf base yaml-cpp jsoncpp)
 
 
 target_include_directories(

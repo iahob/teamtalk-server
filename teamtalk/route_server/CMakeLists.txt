@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 PROJECT(routeserver)
 
 AUX_SOURCE_DIRECTORY(./ SRC_LIST)
-
+AUX_SOURCE_DIRECTORY(../pb/protocol SRC_LIST)
  SET(EXECUTABLE_OUTPUT_PATH  ${CMAKE_SOURCE_DIR}/public/bin)
 
 
@@ -20,7 +20,7 @@ TARGET_LINK_LIBRARIES(route_server base protobuf pthread ssl crypto)
 target_include_directories(
         route_server PRIVATE
         .
-        ../pkg/include
+        ../base/include
         ../pb/protocol
         ../base/security
         /usr/local/include

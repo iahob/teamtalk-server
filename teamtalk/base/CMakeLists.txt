@@ -35,8 +35,8 @@ target_include_directories(base_shared PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include/base
         /usr/local/include
 )
-target_link_libraries(base_static PRIVATE pthread crypto ssl protobuf jsoncpp spdlog)
-target_link_libraries(base_shared PRIVATE pthread crypto ssl protobuf jsoncpp spdlog)
+target_link_libraries(base_static PRIVATE pthread crypto ssl protobuf jsoncpp spdlog curl)
+target_link_libraries(base_shared PRIVATE pthread crypto ssl protobuf jsoncpp spdlog curl)
 
 target_link_directories(base_static PRIVATE /usr/local/lib)
 target_link_directories(base_shared PRIVATE /usr/local/lib)

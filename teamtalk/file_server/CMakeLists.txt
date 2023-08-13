@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 PROJECT(fileserver)
 
 AUX_SOURCE_DIRECTORY(./ SRC_LIST)
-
+AUX_SOURCE_DIRECTORY(../pb/protocol SRC_LIST)
 #SET(LIBRARY_OUTPUT_PATH ./)
 SET(EXECUTABLE_OUTPUT_PATH  ${CMAKE_SOURCE_DIR}/public/bin)
 
@@ -22,14 +22,13 @@ ADD_DEFINITIONS( -g -W -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DAC_HAS_INFO
 
 ADD_EXECUTABLE(file_server ${SRC_LIST})
 
-TARGET_LINK_LIBRARIES(file_server base yaml-cpp uuid )
+TARGET_LINK_LIBRARIES(file_server PRIVATE protobuf base yaml-cpp uuid )
  
 target_include_directories(file_server PRIVATE
         .
         ../base/include
         ../pb/protocol
        /usr/local/include
-       ${YAML_CPP_INCLUDE_DIR}
         )
 
 target_link_directories(
@@ -37,5 +36,4 @@ target_link_directories(
         .
         ../base/lib
         /usr/local/lib
-        ${YAML_CPP_LIB_DIR}
 )
