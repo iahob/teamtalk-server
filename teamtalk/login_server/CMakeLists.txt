@@ -4,7 +4,7 @@ PROJECT(loginserver)
 
 AUX_SOURCE_DIRECTORY(./ SRC_LIST)
 
- SET(EXECUTABLE_OUTPUT_PATH  ${CMAKE_SOURCE_DIR}/pub/bin)
+ SET(EXECUTABLE_OUTPUT_PATH  ${CMAKE_SOURCE_DIR}/public/bin)
 
 
 
@@ -18,15 +18,14 @@ ADD_DEFINITIONS( -g -W -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DAC_HAS_INFO
 
 #ADD_XXXX必须在TARGET_LINK_LIBRARIES前面，否则会报错
 #ADD_LIBRARY(${PROJECTNAME} SHARED/STATIC ${SRC_LIST})
-ADD_EXECUTABLE(login_server ${SRC_LIST}
-        ../tools/daeml.cpp)
+ADD_EXECUTABLE(login_server ${SRC_LIST} )
 
 TARGET_LINK_LIBRARIES(login_server base protobuf-lite pthread ssl crypto yaml-cpp)
 
 target_include_directories(
         login_server PRIVATE
         .
-        ../pkg/include
+        ../base/include
         ../pb/protocol
         /usr/local/include
         ${YAML_CPP_INCLUDE_DIR}
@@ -37,7 +36,7 @@ target_link_directories(
         login_server PRIVATE
         .
         /usr/local/lib
-        ../pkg/lib
+        ../base/lib
         ${YAML_CPP_LIB_DIR}  
 
 )

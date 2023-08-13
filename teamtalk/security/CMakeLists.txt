@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 PROJECT(security)
 AUX_SOURCE_DIRECTORY(. SRC_LIST)
-AUX_SOURCE_DIRECTORY(../pkg/include/security SRC_LIST)
-SET(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/public/lib)
+AUX_SOURCE_DIRECTORY(include SRC_LIST)
+SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(INSTALL_HEADER_PATH ${CMAKE_SOURCE_DIR}/public/include)
 set(INSTALL_LIB_PATH ${CMAKE_SOURCE_DIR}/public/lib)
 if(WIN32)
@@ -17,6 +17,7 @@ ADD_LIBRARY(security STATIC ${SRC_LIST})
 target_include_directories(
         security PRIVATE
         .
+        include
         /usr/local/include
 )
 # install headers

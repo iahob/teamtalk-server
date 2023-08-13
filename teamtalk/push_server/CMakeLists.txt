@@ -6,7 +6,7 @@ AUX_SOURCE_DIRECTORY(./socket SRC_LIST2)
 AUX_SOURCE_DIRECTORY(../pb/protocol SRC_LIST2)
 
 
-SET(EXECUTABLE_OUTPUT_PATH  ${CMAKE_SOURCE_DIR}/pub/bin)
+SET(EXECUTABLE_OUTPUT_PATH  ${CMAKE_SOURCE_DIR}/public/bin)
 
 ADD_DEFINITIONS( -g -W -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DAC_HAS_INFO
 -DAC_HAS_WARNING -DAC_HAS_ERROR -DAC_HAS_CRITICAL -DTIXML_USE_STL
@@ -16,15 +16,14 @@ ADD_DEFINITIONS( -g -W -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DAC_HAS_INFO
 #LINK_DIRECTORIES(./ ${PB_LIB_DIR} ${SLOG_LIB_DIR} ${OPENSSL_LIB_DIR})
 
 
-ADD_EXECUTABLE(push_server ${SRC_LIST1} ${SRC_LIST2}
-        ../tools/daeml.cpp)
+ADD_EXECUTABLE(push_server ${SRC_LIST1} ${SRC_LIST2} )
 
 TARGET_LINK_LIBRARIES(push_server pthread protobuf ssl)
 
 target_include_directories(
         push_server PRIVATE
         .
-        ../pkg/include
+        ../base/include
         ../pb/protocol
         ../pkg/security
         /usr/local/include
@@ -34,5 +33,5 @@ target_link_directories(
         push_server PRIVATE
         .
         /usr/local/lib
-        ../pkg/lib
+        ../base/lib
 )

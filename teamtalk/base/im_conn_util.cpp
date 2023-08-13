@@ -6,10 +6,10 @@
 //  Copyright (c) 2015年 benqi. All rights reserved.
 //
 
-#include "im_conn_util.h"
+#include "include/base/im_conn_util.h"
 
-#include "imconn.h"
-#include "ImPduBase.h"
+#include "include/base/imconn.h"
+#include "include/base/ImPduBase.h"
 
 int SendMessageLite(CImConn* conn, uint16_t sid, uint16_t cid, const ::google::protobuf::MessageLite* message) {
     CImPdu pdu;

@@ -11,9 +11,9 @@
 
 #include <string.h>
 #include <stdio.h>
-#include "EncDec.h"
-#include "UtilPdu.h"
-#include "Base64.h"
+#include "include/base/EncDec.h"
+#include "include/base/UtilPdu.h"
+#include "include/base/Base64.h"
 
 CAes::CAes(const string& strKey)
 {

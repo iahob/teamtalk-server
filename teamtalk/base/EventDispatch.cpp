@@ -1,6 +1,6 @@
-#include "EventDispatch.h"
-#include "BaseSocket.h"
-#include "slog.h"
+#include "include/base/EventDispatch.h"
+#include "include/base/BaseSocket.h"
+#include "include/base/slog.h"
 #define MIN_TIMER_DURATION	100	// 100 miliseconds
 
 CEventDispatch* CEventDispatch::m_pEventDispatch = NULL;

@@ -9,7 +9,7 @@
 *
 ================================================================*/
 #include <assert.h>
-#include "Condition.h"
+#include "include/base/Condition.h"
 
 CCondition::CCondition(CLock* pLock):m_pLock(pLock)
 {

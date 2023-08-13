@@ -1,47 +1,52 @@
 cmake_minimum_required(VERSION 3.12)
-PROJECT(Base)
+project(Base)
 
+# 设置源文件列表
+file(GLOB_RECURSE SRC_LIST
+        "*.cpp"
+        "../pb/protocol/*.cpp"
+)
 
-AUX_SOURCE_DIRECTORY(. SRC_LIST)
-AUX_SOURCE_DIRECTORY(../pb/protocol SRC_LIST)
-AUX_SOURCE_DIRECTORY(../pkg/include/base SRC_LIST)
+# 设置输出路径
+set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+set(INSTALL_HEADER_PATH ${CMAKE_SOURCE_DIR}/public)
+set(INSTALL_LIB_PATH ${CMAKE_SOURCE_DIR}/public/lib)
 
-SET(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/src/pkg/lib)
-set(INSTALL_HEADER_PATH ${CMAKE_SOURCE_DIR}/pub/include)
-set(INSTALL_LIB_PATH ${CMAKE_SOURCE_DIR}/pub/lib)
-
-message(STATUS include_dir:${LIBRARY_HEADER_PATH})
-message(STATUS lib_dir:${LIBRARY_LIB_PATH})
-
-
-ADD_DEFINITIONS( -g -W -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DAC_HAS_INFO
--DAC_HAS_WARNING -DAC_HAS_ERROR -DAC_HAS_CRITICAL -DTIXML_USE_STL
--DAC_HAS_DEBUG -DLINUX_DAEMON)
-
+# 设置编译选项
 set(CMAKE_CXX_STANDARD 11)
+add_compile_options(-g -W -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DAC_HAS_INFO
+        -DAC_HAS_WARNING -DAC_HAS_ERROR -DAC_HAS_CRITICAL -DTIXML_USE_STL
+        -DAC_HAS_DEBUG -DLINUX_DAEMON)
 
+# 生成动态库
+add_library(base_shared SHARED ${SRC_LIST})
+# 生成静态库
+add_library(base_static STATIC ${SRC_LIST})
 
-
-
-ADD_LIBRARY(base STATIC ${SRC_LIST})
-
-TARGET_LINK_LIBRARIES(base pthread crypto ssl protobuf jsoncpp spdlog)
-
-target_include_directories(
-        base PRIVATE
-        .
-        ../pb/protocol
-        ../pkg/include/base
+target_include_directories(base_static PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../pb/protocol
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/base
         /usr/local/include
 )
-
-target_link_directories(
-        base PRIVATE
-        /usr/local/lib
+target_include_directories(base_shared PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../pb/protocol
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/base
+        /usr/local/include
 )
-# install headerss
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/pkg/include/base
-        DESTINATION ${INSTALL_HEADER_PATH}
-        FILES_MATCHING PATTERN "*.h")
-#install(FILES ${HEADERS} DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR}/${CMAKE_PROJECT_NAME})
-install(TARGETS base DESTINATION ${INSTALL_LIB_PATH} EXPORT libase)
+target_link_libraries(base_static PRIVATE pthread crypto ssl protobuf jsoncpp spdlog)
+target_link_libraries(base_shared PRIVATE pthread crypto ssl protobuf jsoncpp spdlog)
+
+target_link_directories(base_static PRIVATE /usr/local/lib)
+target_link_directories(base_shared PRIVATE /usr/local/lib)
+
+set_target_properties(base_static PROPERTIES OUTPUT_NAME base)
+set_target_properties(base_shared PROPERTIES OUTPUT_NAME base)
+# 安装头文件
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include DESTINATION ${INSTALL_HEADER_PATH})
+
+# 安装库文件
+install(TARGETS base_static base_shared
+        DESTINATION  ${INSTALL_LIB_PATH}
+)

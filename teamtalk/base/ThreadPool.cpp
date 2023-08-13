@@ -6,8 +6,8 @@
  */
 
 #include <stdlib.h>
-#include "util.h"
-#include "ThreadPool.h"
+#include "include/base/util.h"
+#include "include/base/ThreadPool.h"
 
 ///////////
 CWorkerThread::CWorkerThread()

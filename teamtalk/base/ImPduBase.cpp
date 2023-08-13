@@ -5,10 +5,10 @@
  *      Author: ziteng@mogujie.com
  */
 
-#include "util.h"
-#include "ImPduBase.h"
+#include "include/base/util.h"
+#include "include/base/ImPduBase.h"
 #include "IM.BaseDefine.pb.h"
-#include "slog.h"
+#include "include/base/slog.h"
 
 using namespace IM::BaseDefine;
 

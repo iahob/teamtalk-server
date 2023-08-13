@@ -10,7 +10,7 @@
 #include "Lock.h"
 ================================================================*/
 
-#include "Lock.h"
+#include "include/base/Lock.h"
 
 CLock::CLock()
 {

@@ -21,11 +21,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
-#include "aes.h"
-#include "aes_locl.h"
-#include "base64.h"
-#include "security.h"
-#include "md5.h"
+#include "include/securitty/aes.h"
+#include "include/securitty/aes_locl.h"
+#include "include/securitty/base64.h"
+#include "include/securitty/security.h"
+#include "include/securitty/md5.h"
 
 uint32_t ReadUint32(uchar_t *buf)
 {

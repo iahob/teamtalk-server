@@ -23,6 +23,11 @@ default=root
 
 
 ```bash
+apt install plocate
+
+apt install libmysqlclient-dev
+apt install uuid-dev
+
 mkdir build
 cd build && cmake ..
 make && make install 

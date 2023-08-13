@@ -1,7 +1,7 @@
-#include "netlib.h"
-#include "BaseSocket.h"
-#include "SSLSocket.h"
-#include "EventDispatch.h"
+#include "include/base/netlib.h"
+#include "include/base/BaseSocket.h"
+#include "include/base/SSLSocket.h"
+#include "include/base/EventDispatch.h"
 
 int netlib_init()
 {

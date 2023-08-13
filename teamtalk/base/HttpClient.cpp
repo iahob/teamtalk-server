@@ -11,10 +11,10 @@
  ================================================================*/
 
 #include <string>
-#include "HttpClient.h"
+#include "include/base/HttpClient.h"
 #include "json/json.h"
-#include "util.h"
-#include "slog.h"
+#include "include/base/util.h"
+#include "include/base/slog.h"
 
 using namespace std;
 

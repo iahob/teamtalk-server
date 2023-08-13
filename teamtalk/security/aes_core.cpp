@@ -36,8 +36,8 @@
 #include <assert.h>
 
 #include <stdlib.h>
-#include "aes.h"
-#include "aes_locl.h"
+#include "include/securitty/aes.h"
+#include "include/securitty/aes_locl.h"
 
 #ifndef AES_ASM
 /*

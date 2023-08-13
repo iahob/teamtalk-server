@@ -5,7 +5,7 @@ AUX_SOURCE_DIRECTORY(./ SRC_LIST)
 AUX_SOURCE_DIRECTORY(./business SRC_LIST)
 
 #SET(LIBRARY_OUTPUT_PATH ./)
-SET(EXECUTABLE_OUTPUT_PATH  ${CMAKE_SOURCE_DIR}/pub/bin)
+SET(EXECUTABLE_OUTPUT_PATH  ${CMAKE_SOURCE_DIR}/public/bin)
 
 
 
@@ -27,18 +27,17 @@ ADD_DEFINITIONS( -g -W -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DAC_HAS_INFO
 set(CMAKE_CXX_STANDARD 11)
 
 
-ADD_EXECUTABLE(db_proxy_server ${SRC_LIST}
-        ../tools/daeml.cpp)
+ADD_EXECUTABLE(db_proxy_server ${SRC_LIST})
 
 TARGET_LINK_LIBRARIES(db_proxy_server pthread base protobuf mysqlclient hiredis curl ssl crypto jsoncpp spdlog yaml-cpp)
  
 TARGET_INCLUDE_DIRECTORIES(db_proxy_server PRIVATE
         ./
         ./businiess
-        ../pkg/include
          ../pb/protocol
          /usr/local/include/
-         ${MYSQL_INCLUDE_DIR}
+       ../base/include
+        ${MYSQL_INCLUDE_DIR}
         ${YAML_CPP_INCLUDE_DIR}
 
 )
@@ -46,7 +45,7 @@ TARGET_INCLUDE_DIRECTORIES(db_proxy_server PRIVATE
 TARGET_LINK_DIRECTORIES( db_proxy_server PRIVATE
         ./
         /usr/local/lib
-        ../pkg/lib
+        ../base/lib
         ${MYSQL_LIB}
         ${YAML_CPP_LIB_DIR}
 )

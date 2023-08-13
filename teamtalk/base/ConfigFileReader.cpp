@@ -5,8 +5,8 @@
  *      Author: ziteng@mogujie.com
  */
 
-#include "slog.h"
-#include "ConfigFileReader.h"
+#include "include/base/slog.h"
+#include "include/base/ConfigFileReader.h"
 CConfigFileReader::CConfigFileReader(const char* filename)
 {
 	_LoadFile(filename);

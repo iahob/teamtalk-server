@@ -5,7 +5,7 @@
  *      Author: ziteng@mogujie.com
  */
 
-#include "ServInfo.h"
+#include "include/base/ServInfo.h"
 
 serv_info_t* read_server_config(CConfigFileReader* config_file, const char* server_ip_format,
 		const char* server_port_format, uint32_t& server_count)

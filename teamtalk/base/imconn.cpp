@@ -5,8 +5,8 @@
  *      Author: ziteng@mogujie.com
  */
 
-#include "imconn.h"
-#include "slog.h"
+#include "include/base/imconn.h"
+#include "include/base/slog.h"
 
 
 //static uint64_t g_send_pkt_cnt = 0;		// 发送数据包总数

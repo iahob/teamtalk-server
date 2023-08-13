@@ -3,7 +3,7 @@ PROJECT(msfs)
 
 AUX_SOURCE_DIRECTORY(./ SRC_LIST)
 
- SET(EXECUTABLE_OUTPUT_PATH  ${CMAKE_SOURCE_DIR}/pub/bin)
+ SET(EXECUTABLE_OUTPUT_PATH  ${CMAKE_SOURCE_DIR}/public/bin)
 
 
 ADD_DEFINITIONS( -g -W -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DAC_HAS_INFO
@@ -11,15 +11,14 @@ ADD_DEFINITIONS( -g -W -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DAC_HAS_INFO
 -DAC_HAS_DEBUG -DLINUX_DAEMON -std=c++11)
 
 
-ADD_EXECUTABLE(msfs ${SRC_LIST}
-        ../tools/daeml.cpp)
+ADD_EXECUTABLE(msfs ${SRC_LIST} )
 
 TARGET_LINK_LIBRARIES(msfs base yaml-cpp)
 
 target_include_directories(
         msfs PRIVATE
         .
-        ../pkg/include
+        ../base/include
         /usr/local/include
         ${YAML_CPP_INCLUDE_DIR}
 )
@@ -28,6 +27,6 @@ target_link_directories(
         msfs PRIVATE
         .
         /usr/local/lib
-        ../pkg/lib
+        ../base/lib
         ${YAML_CPP_LIB_DIR}
 )

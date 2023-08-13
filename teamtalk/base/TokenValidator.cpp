@@ -5,7 +5,7 @@
  *      Author: ziteng@mogujie.com
  */
 
-#include "TokenValidator.h"
+#include "include/base/TokenValidator.h"
 
 #define AUTH_ENCRYPT_KEY "Mgj!@#123"
 

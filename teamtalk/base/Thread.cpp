@@ -9,7 +9,7 @@
 *
 #include "Thread.h"
 ================================================================*/
-#include "Thread.h"
+#include "include/base/Thread.h"
 
 CThread::CThread()
 {
